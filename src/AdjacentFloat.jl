@@ -1,0 +1,8 @@
+module AdjacentFloat
+
+
+
+
+
+
+end # module
