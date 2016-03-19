@@ -1,7 +1,7 @@
 module AdjacentFloat
 
 
-
+export prevFloat, nextFloat, separatingFloats
 
 
 
