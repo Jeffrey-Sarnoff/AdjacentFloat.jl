@@ -39,7 +39,7 @@ function prevFloat{T<:AbstractFloat}(x::T, n::Int)
     x
 end
 
-function nFloatsSeparating{T<:AbstractFloat}(a::T, b::T)
+function nFloatsSeparating{T<:Float64}(a::T, b::T)
     isneg = (a > b)
     a,b = minmax(a,b)
     
