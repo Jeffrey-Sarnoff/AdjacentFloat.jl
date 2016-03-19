@@ -49,9 +49,10 @@ function nFloatsSeparating{T<:Float64}(a::T, b::T)
        if xpa==xpb
           floor(Int64,((y-x)/(2^xbp))*4503599627370496) # *2^52
        elseif xpa+1 == xpb
-          4503599627370496
+          4503599627370496 + nFloatsSeparating(ldexp(fra,xpa+1),b)
        else
-          4503599627370496
+          n = xpb-xpa
+          4503599627370496*(n-1) + nFloatsSeparating(ldexp(fra,xpa+n),b)
        end
     isneg ? -z : z
 end
