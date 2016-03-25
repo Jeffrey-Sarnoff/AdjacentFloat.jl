@@ -4,6 +4,6 @@ module AdjacentFloat
 
 export prevFloat, nextFloat, nFloatsSeparate
 
-include("adjacentFloats.jl"
+include("adjacentFloats.jl")
 
 end # module
