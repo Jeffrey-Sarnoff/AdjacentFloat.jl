@@ -18,14 +18,14 @@ nextNearerToZero(x::Float32)   = (0.99999994f0*x)-1.435f-42      # (x-5.960465f-
 nextAwayFromZero(x::Float32)   = (1.00000010f0*x)+1.435f-42      # (x+5.960465f-8*x)+1.435f-42
 # the multiplicative formulation for Float16 is exact for |x| > Float16(0.25)
 # which is quite coarse, we do not use that here
-nextNearerToZero(x::Float16) = signbit(x) ? nextfloat(x) : prevfloat(x)
-nextAwayFromZero(x::Float16) = signbit(x) ? prevfloat(x) : nextfloat(x)
+nextNearerToZero(x::Union{BigFloat,Float16}) = signbit(x) ? nextfloat(x) : prevfloat(x)
+nextAwayFromZero(x::Union{BigFloat,Float16}) = signbit(x) ? prevfloat(x) : nextfloat(x)
 
 @inline nextFloat{T<:AbstractFloat}(x::T) = signbit(x) ? nextNearerToZero(x) : nextAwayFromZero(x)
 @inline prevFloat{T<:AbstractFloat}(x::T) = signbit(x) ? nextAwayFromZero(x) : nextNearerToZero(x)
 
-@inline nextFloat(x::Float16) = nextfloat(x)
-@inline prevFloat(x::Float16) = prevfloat(x)
+@inline nextFloat(x::Union{BigFloat,Float16}) = nextfloat(x)
+@inline prevFloat(x::Union{BigFloat,Float16}) = prevfloat(x)
 
 function nextFloat{T<:AbstractFloat}(x::T, n::Int)
     if !signbit(n)
@@ -49,25 +49,29 @@ function prevFloat{T<:AbstractFloat}(x::T, n::Int)
   x
 end
 
-function nFloatsSeparate{T<:Float64}(a::T, b::T)
-    isneg = (a > b)
-    a,b = minmax(a,b)
+for (F,U,I) in ((:Float16,:UInt16,:Int16), (:Float32,:UInt32,:Int32), (:Float64,:UInt64,:Int64))
+  @eval begin
+    function nFloatsSeparate{T<:$F}(a::T, b::T)
+      isneg = (a > b)
+      a,b = minmax(a,b)
     
-    if signbit(a) == signbit(b)
-       if signbit(a)
-           z = reinterpret(UInt64,abs(a))-reinterpret(UInt64,abs(b))
+      if signbit(a) == signbit(b)
+        if signbit(a)
+           z = reinterpret($U,abs(a))-reinterpret($U,abs(b))
         else
-           z = reinterpret(UInt64,b)-reinterpret(UInt64,a)
+           z = reinterpret($U,b)-reinterpret($U,a)
         end
-    else
-       z = reinterpret(UInt64,b)+reinterpret(UInt64,-a)+one(UInt64)
-    end
+      else
+        z = reinterpret($U,b)+reinterpret($U,-a)+one($U)
+      end
     
-    if z > reinterpret(UInt64, typemax(Int64))
-        throw(ArgumentError("separation exceeds typemax(Int64)"))
-    else
-        isneg ? -reinterpret(Int64,z) : reinterpret(Int64,z)
+      if z > reinterpret($U, typemax($I))
+        throw(ArgumentError(string("separation exceeds typemax(",$I,")")))
+      else
+        isneg ? -reinterpret($I,z) : reinterpret($I,z)
+      end
     end
+  end
 end
 
 #= presumes xpa == frexp(a)[2] == frexp(b)[2]
