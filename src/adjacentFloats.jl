@@ -54,12 +54,16 @@ function nFloatsSeparate{T<:Float64}(a::T, b::T)
     a,b = minmax(a,b)
     
     if signbit(a) == signbit(b)
-       z = reinterpret(Int64,abs(b))-reinterpret(Int64,abs(a))
+       z = reinterpret(UInt64,abs(b))-reinterpret(UInt64,abs(a))
     else
-       z = reinterpret(Int64,b)+reinterpret(Int64,-a)+1
+       z = reinterpret(UInt64,b)+reinterpret(UInt64,-a)+one(UInt64)
     end
     
-    isneg ? -z : z
+    if z > reinterpret(UInt64, typemax(Int64))
+        throw(ArgumentError("separation exceeds typemax(Int64)"))
+    else
+        isneg ? -reinterpret(Int64,z) : reinterpret(Int64,z)
+    end
 end
 
 #= presumes xpa == frexp(a)[2] == frexp(b)[2]
