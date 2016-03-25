@@ -28,17 +28,25 @@ nextAwayFromZero(x::Float16) = signbit(x) ? prevfloat(x) : nextfloat(x)
 @inline prevFloat(x::Float16) = prevfloat(x)
 
 function nextFloat{T<:AbstractFloat}(x::T, n::Int)
-    for i in 1:n
-        x = nextFloat(x)
+    if !signbit(n)
+        for i in 1:n
+            x = nextFloat(x)
+        end
+    else
+        x = prevFloat(x,-n)
     end
     x
 end
 
 function prevFloat{T<:AbstractFloat}(x::T, n::Int)
-    for i in 1:n
-        x = prevFloat(x)
+    if !signbit(n)
+        for i in 1:n
+            x = prevFloat(x)
+        end
+    else
+        x = nextFloat(x,-n)
     end
-    x
+  x
 end
 
 # presumes frexp(a)[2] == frexp(b)[2]
