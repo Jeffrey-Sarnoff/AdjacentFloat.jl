@@ -49,28 +49,24 @@ function prevFloat{T<:AbstractFloat}(x::T, n::Int)
   x
 end
 
-# presumes frexp(a)[2] == frexp(b)[2]
+function nFloatsSeparate{T<:Float64}(a::T, b::T)
+    isneg = (a > b)
+    a,b = minmax(a,b)
+    
+    if signbit(a) == signbit(b)
+       z = reinterpret(Int64,abs(b))-reinterpret(Int64,abs(a))
+    else
+       z = reinterpret(Int64,b)+reinterpret(Int64,-a)+1
+    end
+    
+    isneg ? -z : z
+end
+
+#= presumes xpa == frexp(a)[2] == frexp(b)[2]
 function nFloatsSeparate{T<:Float64}(a::T, b::T,xpa::Int)
     isneg = a > b
     x,y = minmax(a,b)
     z = floor(Int64, ((y-x)/2^xpa)*2^53)
     isneg ? -z : z
 end
-
-function nFloatsSeparating{T<:Float64}(a::T, b::T)
-    isneg = (a > b)
-    a,b = minmax(a,b)
-    
-    fra,xpa = frexp(a)
-    frb,xpb = frexp(b)
-    z =
-       if xpa==xpb
-          nFloatsSeparate(a,b,xpa)
-       elseif xpa+1 == xpb
-          #4503599627370496 + nFloatsSeparating(ldexp(fra,xpa+1),b)
-       else
-          n = xpb-xpa
-          #4503599627370496*(n-1) + nFloatsSeparating(ldexp(fra,xpa+n),b)
-       end
-    isneg ? -z : z
-end
+=#
