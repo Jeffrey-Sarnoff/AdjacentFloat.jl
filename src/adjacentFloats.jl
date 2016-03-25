@@ -18,12 +18,14 @@ nextNearerToZero(x::Float32)   = (0.99999994f0*x)-1.435f-42      # (x-5.960465f-
 nextAwayFromZero(x::Float32)   = (1.00000010f0*x)+1.435f-42      # (x+5.960465f-8*x)+1.435f-42
 # the multiplicative formulation for Float16 is exact for |x| > Float16(0.25)
 # which is quite coarse, we do not use that here
-nextNearerToZero(x::Float16) = (x < 0) ? nextfloat(x) : prevfloat(x)
-nextAwayFromZero(x::Float16) = (x < 0) ? prevfloat(x) : nextfloat(x)
+nextNearerToZero(x::Float16) = signbit(x) ? nextfloat(x) : prevfloat(x)
+nextAwayFromZero(x::Float16) = signbit(x) ? prevfloat(x) : nextfloat(x)
 
 @inline nextFloat{T<:AbstractFloat}(x::T) = signbit(x) ? nextNearerToZero(x) : nextAwayFromZero(x)
 @inline prevFloat{T<:AbstractFloat}(x::T) = signbit(x) ? nextAwayFromZero(x) : nextNearerToZero(x)
 
+@inline nextFloat(x::Float16) = nextfloat(x)
+@inline prevFloat(x::Float16) = prevfloat(x)
 
 function nextFloat{T<:AbstractFloat}(x::T, n::Int)
     for i in 1:n
