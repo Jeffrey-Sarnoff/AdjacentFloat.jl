@@ -2,7 +2,7 @@ module AdjacentFloat
 
 !isdefined(Float) && typealias Float AbstractFloat;
 
-export prevFloat, nextFloat, nBetweenFloats
+export prevFloat, nextFloat, nFloatsSeparate
 
 include("adjacentFloats.jl"
 
