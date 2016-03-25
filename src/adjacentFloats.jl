@@ -54,7 +54,11 @@ function nFloatsSeparate{T<:Float64}(a::T, b::T)
     a,b = minmax(a,b)
     
     if signbit(a) == signbit(b)
-       z = reinterpret(UInt64,abs(b))-reinterpret(UInt64,abs(a))
+       if signbit(a)
+           z = reinterpret(UInt64,abs(a))-reinterpret(UInt64,abs(b))
+        else
+           z = reinterpret(UInt64,b)-reinterpret(UInt64,a)
+        end
     else
        z = reinterpret(UInt64,b)+reinterpret(UInt64,-a)+one(UInt64)
     end
